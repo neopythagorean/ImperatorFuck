@@ -1,0 +1,948 @@
+namespace = bf
+
+###############################################################
+# I M P E R A T O R  B R A I N F U C K  I N T E R P R E T E R #
+###############################################################
+#         A really shitty mod by Rezznov (/u/rezznov)         #
+###############################################################
+#
+# How it works:
+#
+# God if I know.
+#
+# Variables used by the interpreter:
+#
+#   editptr
+# This is used during the Editor event chain. Iterates province
+# by province & assigns a command to each province by country
+# TAG.
+#
+#   stackptr
+# This is the current pointer to the stack used by the editor
+# to determine the jump points of matching [ & ] pairs.
+#
+#   prgptr
+# This is variable used to indicate what part of the program
+# the Interpreter is currently executing.
+#
+#   bfptr
+# This is the brainfuck pointer, it points to the current cell
+# in memory.
+#
+
+
+# Initialize the Interpreter
+bf.1 = {
+	type = country_event
+	title = bfi.1.title
+	desc = bfi.1.desc
+	picture = romans_marching
+	hidden = no
+	#fire_only_once = yes
+	goto_location = capital_scope
+	
+	immediate = {
+		
+		#Give rome a province so they don't get annexed while editing.
+		p:4018 = {
+			set_owned_by = ROM
+		}
+		
+		# Initialize the editor pointer
+		set_variable = {
+			name = editptr
+			value = 1
+		}
+		# Initialize the stack pointer
+		set_variable = {
+			name = stackptr
+			value = 0
+		}
+		# Initialize input variables
+		set_variable = {
+			name = hiin
+			value = 0
+		}
+		set_variable = {
+			name = loin
+			value = 0
+		}
+		set_variable = {
+			name = uinput
+			value = 0
+		}
+	}
+	option = {
+		name = bfi.1.a
+		highlight = yes
+		trigger_event = {
+			id = bf.2
+		}
+	}
+}
+
+# Editor event.
+#  Lets you enter the brainfuck program.
+
+bf.2 = {
+	type = country_event
+	title = "Program!"
+	desc = "Choose the command you wish to use for this cell. editptr: [Player.MakeScope.Var('editptr').GetValue] stackptr: [Player.MakeScope.Var('stackptr').GetValue]"
+	picture = scribe_tools
+	hidden = no
+	
+	option = {
+		name = "MVR"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = MVR
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	
+	option = {
+		name = "MVL"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = MVL
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "INC"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = INC
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "DCC"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = DCC
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "PUT"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = PUT
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "GET"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = GET
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "JMF"
+		highlight = yes
+		
+		# Increment stack pointer.
+		change_variable = {
+			name = stackptr
+			add = 1
+		}
+		# Push the value onto the stack.
+		# (p:stackptr).stack_val = editptr
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:stackptr
+			}
+			set_variable = {
+				name = stack_val
+				value = ROOT.var:editptr
+			}
+		}
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = JMF
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "JMB"
+		highlight = yes
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:stackptr
+			}
+			save_scope_as = stack_pointed_prov
+		}
+		
+		random_ownable_province = {
+			limit = {
+				# By the LORD, this is so fucking ugly I am going to cry.
+				province_id = scope:stack_pointed_prov.var:stack_val
+			}
+			set_variable = {
+				name = goto_location
+				value = ROOT.var:editptr
+			}
+		}
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_variable = {
+				name = goto_location
+				value = scope:stack_pointed_prov.var:stack_val
+			}
+			set_owned_by = JMB
+		}
+		
+		change_variable = {
+			name = stackptr
+			subtract = 1
+		}
+		trigger_event = {
+			id = bf.2
+		}
+	}
+	option = {
+		name = "HALT"
+		highlight = yes
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:editptr
+			}
+			set_owned_by = ROM
+		}
+		trigger_event = {
+			id = bf.10
+		}
+	}
+	
+	after = {
+		change_variable = {
+			name = editptr
+			add = 1
+		}
+	}
+}
+
+# Initialize Exection.
+#
+
+bf.10 = {
+	type = country_event
+	title = "Start Brainfuck code Exection."
+	desc = "..."
+	picture = religious_rite
+	hidden = no
+	
+	option = {
+		name = "God help us."
+		
+		set_variable = {
+			name = bfptr
+			value = 1
+		}
+		set_variable = {
+			name = prgptr
+			value = 1
+		}
+		every_province = {
+			set_variable = {
+				name = bfval
+				value = 0
+			}
+		}
+		trigger_event = {
+			id = bf.15
+		}
+	}
+}
+
+
+# Execution event.
+#  Lets you enter the brainfuck program.
+
+bf.15 = {
+	type = country_event
+	title = "Executing..."
+	desc = "prgptr: [Player.MakeScope.Var('prgptr').GetValue] current cell: [Player.MakeScope.Var('bfptr').GetValue]"
+	hidden = no
+	
+	option = {
+		name = "CONTINUE EXECUTION."
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:prgptr
+			}
+			save_scope_as = current_prg_prov
+		}
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:bfptr
+			}
+			save_scope_as = current_bf_prov
+		}
+		
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:prgptr
+			}
+			
+			switch = {
+				trigger = owned_or_subject_owned
+				MVR = {
+					ROOT = {
+						change_variable = {
+							name = bfptr
+							add = 1
+						}
+					}
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				MVL = {
+					ROOT = {
+						change_variable = {
+							name = bfptr
+							subtract = 1
+						}
+					}
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				INC = {
+					random_ownable_province = {
+						limit = {
+							province_id = ROOT.var:bfptr
+						}
+						
+						change_variable = {
+							name = bfval
+							add = 1
+						}
+					}
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				DCC = {
+					random_ownable_province = {
+						limit = {
+							province_id = ROOT.var:bfptr
+						}
+						
+						change_variable = {
+							name = bfval
+							subtract = 1
+						}
+					}
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				PUT = {
+					ROOT = {
+						trigger_event = {
+							id = bf.39
+						}
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				GET = {
+					ROOT = {
+						trigger_event = {
+							id = bf.20
+						}
+					}
+				}
+				JMF = {
+					if = {
+						limit = {
+							scope:current_bf_prov.var:bfval = 0
+						}
+						
+						ROOT = {
+							set_variable = {
+								name = prgptr
+								value = scope:current_prg_prov.var:goto_location
+							}
+						}
+					}
+					
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				JMB = {
+					if = {
+						limit = {
+							scope:current_bf_prov.var:bfval != 0
+						}
+						
+						ROOT = {
+							set_variable = {
+								name = prgptr
+								value = scope:current_prg_prov.var:goto_location
+							}
+						}
+					}
+					ROOT = {
+						trigger_event = {
+							id = bf.15
+						}
+					}
+				}
+				
+				fallback = {
+					# Halt Program.
+				}
+			}
+		}
+	}
+	
+	after = {
+		change_variable = {
+			name = prgptr
+			add = 1
+		}
+	}
+}
+
+# GET Event
+#  This event is used to get the user's input.
+
+# First Digit
+bf.20 = {
+	type = country_event
+	title = "User Input"
+	desc = "Please enter the HIGH NIBBLE of the ascii character you want to enter."
+	picture = scribe_tools
+	hidden = no
+	option = {
+		name = "0"
+		set_variable = {
+			name = hiin
+			value = 0
+		}
+	}
+	option = {
+		name = "1"
+		set_variable = {
+			name = hiin
+			value = 1
+		}
+	}
+	option = {
+		name = "2"
+		set_variable = {
+			name = hiin
+			value = 2
+		}
+	}
+	option = {
+		name = "3"
+		set_variable = {
+			name = hiin
+			value = 3
+		}
+	}
+	option = {
+		name = "4"
+		set_variable = {
+			name = hiin
+			value = 4
+		}
+	}
+	option = {
+		name = "5"
+		set_variable = {
+			name = hiin
+			value = 5
+		}
+	}
+	option = {
+		name = "6"
+		set_variable = {
+			name = hiin
+			value = 6
+		}
+	}
+	option = {
+		name = "7"
+		set_variable = {
+			name = hiin
+			value = 7
+		}
+	}
+	option = {
+		name = "8"
+		set_variable = {
+			name = hiin
+			value = 8
+		}
+	}
+	option = {
+		name = "9"
+		set_variable = {
+			name = hiin
+			value = 9
+		}
+	}
+	option = {
+		name = "A"
+		set_variable = {
+			name = hiin
+			value = 10
+		}
+	}
+	option = {
+		name = "B"
+		set_variable = {
+			name = hiin
+			value = 11
+		}
+	}
+	option = {
+		name = "C"
+		set_variable = {
+			name = hiin
+			value = 12
+		}
+	}
+	option = {
+		name = "D"
+		set_variable = {
+			name = hiin
+			value = 13
+		}
+	}
+	option = {
+		name = "E"
+		set_variable = {
+			name = hiin
+			value = 14
+		}
+	}
+	option = {
+		name = "F"
+		set_variable = {
+			name = hiin
+			value = 15
+		}
+	}
+	after = {
+		trigger_event = {
+			id = bf.21
+		}
+	}
+}
+# Last Digit
+bf.21 = {
+	type = country_event
+	title = "User Input"
+	desc = "Please enter the LOW NIBBLE of the ascii character you want to enter. hn: [Player.MakeScope.Var('hiin').GetValue]"
+	picture = scribe_tools
+	hidden = no
+	option = {
+		name = "0"
+		set_variable = {
+			name = loin
+			value = 0
+		}
+	}
+	option = {
+		name = "1"
+		set_variable = {
+			name = loin
+			value = 1
+		}
+	}
+	option = {
+		name = "2"
+		set_variable = {
+			name = loin
+			value = 2
+		}
+	}
+	option = {
+		name = "3"
+		set_variable = {
+			name = loin
+			value = 3
+		}
+	}
+	option = {
+		name = "4"
+		set_variable = {
+			name = loin
+			value = 4
+		}
+	}
+	option = {
+		name = "5"
+		set_variable = {
+			name = loin
+			value = 5
+		}
+	}
+	option = {
+		name = "6"
+		set_variable = {
+			name = loin
+			value = 6
+		}
+	}
+	option = {
+		name = "7"
+		set_variable = {
+			name = loin
+			value = 7
+		}
+	}
+	option = {
+		name = "8"
+		set_variable = {
+			name = loin
+			value = 8
+		}
+	}
+	option = {
+		name = "9"
+		set_variable = {
+			name = loin
+			value = 9
+		}
+	}
+	option = {
+		name = "A"
+		set_variable = {
+			name = loin
+			value = 10
+		}
+	}
+	option = {
+		name = "B"
+		set_variable = {
+			name = loin
+			value = 11
+		}
+	}
+	option = {
+		name = "C"
+		set_variable = {
+			name = loin
+			value = 12
+		}
+	}
+	option = {
+		name = "D"
+		set_variable = {
+			name = loin
+			value = 13
+		}
+	}
+	option = {
+		name = "E"
+		set_variable = {
+			name = loin
+			value = 14
+		}
+	}
+	option = {
+		name = "F"
+		set_variable = {
+			name = loin
+			value = 15
+		}
+	}
+	after = {
+		# Clear that input bby
+		set_variable = {
+			name = uinput
+			value = 0
+		}
+		# mash em together.
+		change_variable = {
+			name = hiin
+			multiply = 16
+		}
+		change_variable = {
+			name = uinput
+			add = ROOT.var:hiin
+		}
+		change_variable = {
+			name = uinput
+			add = ROOT.var:loin
+		}
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:bfptr
+			}
+			set_variable = {
+				name = bfval
+				value = ROOT.var:uinput
+			}
+		}
+		trigger_event = {
+			id = bf.15
+		}
+	}
+}
+
+
+# PUT Event
+#  Prints the value at the current cell.
+
+bf.39 = {
+	type = country_event
+	title = "STDOUT"
+	desc = {
+		first_valid = {
+			# TODO: Add all unicode characters to this.
+			triggered_desc = { trigger = { ROOT.var:output = 0 } desc = "(NUL)" }
+			triggered_desc = { trigger = { ROOT.var:output = 1 } desc = "(SOH)" }
+			triggered_desc = { trigger = { ROOT.var:output = 2 } desc = "(STX)" }
+			triggered_desc = { trigger = { ROOT.var:output = 3 } desc = "(ETX)" }
+			triggered_desc = { trigger = { ROOT.var:output = 4 } desc = "(EOT)" }
+			triggered_desc = { trigger = { ROOT.var:output = 5 } desc = "(ENQ)" }
+			triggered_desc = { trigger = { ROOT.var:output = 6 } desc = "(ACKNOWLEDGE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 7 } desc = "(BELL)" }
+			triggered_desc = { trigger = { ROOT.var:output = 8 } desc = "(BACK SPACE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 9 } desc = "(TAB)" }
+			triggered_desc = { trigger = { ROOT.var:output = 10 } desc = "(LINE FEED)" }
+			triggered_desc = { trigger = { ROOT.var:output = 11 } desc = "(VTAB)" }
+			triggered_desc = { trigger = { ROOT.var:output = 12 } desc = "(FF)" }
+			triggered_desc = { trigger = { ROOT.var:output = 13 } desc = "(CARRIAGE RETURN)" }
+			triggered_desc = { trigger = { ROOT.var:output = 14 } desc = "(SHIFT OUT)" }
+			triggered_desc = { trigger = { ROOT.var:output = 15 } desc = "(SHIFT IN)" }
+			triggered_desc = { trigger = { ROOT.var:output = 16 } desc = "(DLE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 17 } desc = "(DC1)" }
+			triggered_desc = { trigger = { ROOT.var:output = 18 } desc = "(DC2)" }
+			triggered_desc = { trigger = { ROOT.var:output = 19 } desc = "(DC3)" }
+			triggered_desc = { trigger = { ROOT.var:output = 20 } desc = "(DC4)" }
+			triggered_desc = { trigger = { ROOT.var:output = 21 } desc = "(NEGATIVE ACKNOWLEDGE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 22 } desc = "(SYN)" }
+			triggered_desc = { trigger = { ROOT.var:output = 23 } desc = "(ETB)" }
+			triggered_desc = { trigger = { ROOT.var:output = 24 } desc = "(CANCEL)" }
+			triggered_desc = { trigger = { ROOT.var:output = 25 } desc = "(EM)" }
+			triggered_desc = { trigger = { ROOT.var:output = 26 } desc = "(SUB)" }
+			triggered_desc = { trigger = { ROOT.var:output = 27 } desc = "(ESCAPE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 28 } desc = "(FS)" }
+			triggered_desc = { trigger = { ROOT.var:output = 29 } desc = "(GS)" }
+			triggered_desc = { trigger = { ROOT.var:output = 30 } desc = "(RS)" }
+			triggered_desc = { trigger = { ROOT.var:output = 31 } desc = "(US)" }
+			triggered_desc = { trigger = { ROOT.var:output = 32 } desc = "(SPACE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 33 } desc = "!" }
+			triggered_desc = { trigger = { ROOT.var:output = 34 } desc = "(DOUBLE QUOTE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 35 } desc = "(POUND SIGN)" }
+			triggered_desc = { trigger = { ROOT.var:output = 36 } desc = "$" }
+			triggered_desc = { trigger = { ROOT.var:output = 37 } desc = "%" }
+			triggered_desc = { trigger = { ROOT.var:output = 38 } desc = "&" }
+			triggered_desc = { trigger = { ROOT.var:output = 39 } desc = "(SINGLE QUOTE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 40 } desc = "(" }
+			triggered_desc = { trigger = { ROOT.var:output = 41 } desc = ")" }
+			triggered_desc = { trigger = { ROOT.var:output = 42 } desc = "*" }
+			triggered_desc = { trigger = { ROOT.var:output = 43 } desc = "+" }
+			triggered_desc = { trigger = { ROOT.var:output = 44 } desc = "," }
+			triggered_desc = { trigger = { ROOT.var:output = 45 } desc = "-" }
+			triggered_desc = { trigger = { ROOT.var:output = 46 } desc = "." }
+			triggered_desc = { trigger = { ROOT.var:output = 47 } desc = "/" }
+			triggered_desc = { trigger = { ROOT.var:output = 48 } desc = "0" }
+			triggered_desc = { trigger = { ROOT.var:output = 49 } desc = "1" }
+			triggered_desc = { trigger = { ROOT.var:output = 50 } desc = "2" }
+			triggered_desc = { trigger = { ROOT.var:output = 51 } desc = "3" }
+			triggered_desc = { trigger = { ROOT.var:output = 52 } desc = "4" }
+			triggered_desc = { trigger = { ROOT.var:output = 53 } desc = "5" }
+			triggered_desc = { trigger = { ROOT.var:output = 54 } desc = "6" }
+			triggered_desc = { trigger = { ROOT.var:output = 55 } desc = "7" }
+			triggered_desc = { trigger = { ROOT.var:output = 56 } desc = "8" }
+			triggered_desc = { trigger = { ROOT.var:output = 57 } desc = "9" }
+			triggered_desc = { trigger = { ROOT.var:output = 58 } desc = ":" }
+			triggered_desc = { trigger = { ROOT.var:output = 59 } desc = ";" }
+			triggered_desc = { trigger = { ROOT.var:output = 60 } desc = "<" }
+			triggered_desc = { trigger = { ROOT.var:output = 61 } desc = "=" }
+			triggered_desc = { trigger = { ROOT.var:output = 62 } desc = ">" }
+			triggered_desc = { trigger = { ROOT.var:output = 63 } desc = "?" }
+			triggered_desc = { trigger = { ROOT.var:output = 64 } desc = "@" }
+			triggered_desc = { trigger = { ROOT.var:output = 65 } desc = "A" }
+			triggered_desc = { trigger = { ROOT.var:output = 66 } desc = "B" }
+			triggered_desc = { trigger = { ROOT.var:output = 67 } desc = "C" }
+			triggered_desc = { trigger = { ROOT.var:output = 68 } desc = "D" }
+			triggered_desc = { trigger = { ROOT.var:output = 69 } desc = "E" }
+			triggered_desc = { trigger = { ROOT.var:output = 70 } desc = "F" }
+			triggered_desc = { trigger = { ROOT.var:output = 71 } desc = "G" }
+			triggered_desc = { trigger = { ROOT.var:output = 72 } desc = "H" }
+			triggered_desc = { trigger = { ROOT.var:output = 73 } desc = "I" }
+			triggered_desc = { trigger = { ROOT.var:output = 74 } desc = "J" }
+			triggered_desc = { trigger = { ROOT.var:output = 75 } desc = "K" }
+			triggered_desc = { trigger = { ROOT.var:output = 76 } desc = "L" }
+			triggered_desc = { trigger = { ROOT.var:output = 77 } desc = "M" }
+			triggered_desc = { trigger = { ROOT.var:output = 78 } desc = "N" }
+			triggered_desc = { trigger = { ROOT.var:output = 79 } desc = "O" }
+			triggered_desc = { trigger = { ROOT.var:output = 80 } desc = "P" }
+			triggered_desc = { trigger = { ROOT.var:output = 81 } desc = "Q" }
+			triggered_desc = { trigger = { ROOT.var:output = 82 } desc = "R" }
+			triggered_desc = { trigger = { ROOT.var:output = 83 } desc = "S" }
+			triggered_desc = { trigger = { ROOT.var:output = 84 } desc = "T" }
+			triggered_desc = { trigger = { ROOT.var:output = 85 } desc = "U" }
+			triggered_desc = { trigger = { ROOT.var:output = 86 } desc = "V" }
+			triggered_desc = { trigger = { ROOT.var:output = 87 } desc = "W" }
+			triggered_desc = { trigger = { ROOT.var:output = 88 } desc = "X" }
+			triggered_desc = { trigger = { ROOT.var:output = 89 } desc = "Y" }
+			triggered_desc = { trigger = { ROOT.var:output = 90 } desc = "Z" }
+			triggered_desc = { trigger = { ROOT.var:output = 91 } desc = "(OPEN SQUARE BRACKET)" }
+			triggered_desc = { trigger = { ROOT.var:output = 92 } desc = "(BACKSLASH)" }
+			triggered_desc = { trigger = { ROOT.var:output = 93 } desc = "(CLOSE SQUARE BRACKET)" }
+			triggered_desc = { trigger = { ROOT.var:output = 94 } desc = "^" }
+			triggered_desc = { trigger = { ROOT.var:output = 95 } desc = "_" }
+			triggered_desc = { trigger = { ROOT.var:output = 96 } desc = "`" }
+			triggered_desc = { trigger = { ROOT.var:output = 97 } desc = "a" }
+			triggered_desc = { trigger = { ROOT.var:output = 98 } desc = "b" }
+			triggered_desc = { trigger = { ROOT.var:output = 99 } desc = "c" }
+			triggered_desc = { trigger = { ROOT.var:output = 100 } desc = "d" }
+			triggered_desc = { trigger = { ROOT.var:output = 101 } desc = "e" }
+			triggered_desc = { trigger = { ROOT.var:output = 102 } desc = "f" }
+			triggered_desc = { trigger = { ROOT.var:output = 103 } desc = "g" }
+			triggered_desc = { trigger = { ROOT.var:output = 104 } desc = "h" }
+			triggered_desc = { trigger = { ROOT.var:output = 105 } desc = "i" }
+			triggered_desc = { trigger = { ROOT.var:output = 106 } desc = "j" }
+			triggered_desc = { trigger = { ROOT.var:output = 107 } desc = "k" }
+			triggered_desc = { trigger = { ROOT.var:output = 108 } desc = "l" }
+			triggered_desc = { trigger = { ROOT.var:output = 109 } desc = "m" }
+			triggered_desc = { trigger = { ROOT.var:output = 110 } desc = "n" }
+			triggered_desc = { trigger = { ROOT.var:output = 111 } desc = "o" }
+			triggered_desc = { trigger = { ROOT.var:output = 112 } desc = "p" }
+			triggered_desc = { trigger = { ROOT.var:output = 113 } desc = "q" }
+			triggered_desc = { trigger = { ROOT.var:output = 114 } desc = "r" }
+			triggered_desc = { trigger = { ROOT.var:output = 115 } desc = "s" }
+			triggered_desc = { trigger = { ROOT.var:output = 116 } desc = "t" }
+			triggered_desc = { trigger = { ROOT.var:output = 117 } desc = "u" }
+			triggered_desc = { trigger = { ROOT.var:output = 118 } desc = "v" }
+			triggered_desc = { trigger = { ROOT.var:output = 119 } desc = "w" }
+			triggered_desc = { trigger = { ROOT.var:output = 120 } desc = "x" }
+			triggered_desc = { trigger = { ROOT.var:output = 121 } desc = "y" }
+			triggered_desc = { trigger = { ROOT.var:output = 122 } desc = "z" }
+			triggered_desc = { trigger = { ROOT.var:output = 123 } desc = "(OPEN BRACKET)" }
+			triggered_desc = { trigger = { ROOT.var:output = 124 } desc = "(PIPE)" }
+			triggered_desc = { trigger = { ROOT.var:output = 125 } desc = "(CLOSE BRACKET)" }
+			triggered_desc = { trigger = { ROOT.var:output = 126 } desc = "~" }
+			triggered_desc = { trigger = { ROOT.var:output = 127 } desc = "(DELETE)" }
+			
+		}
+	}
+	picture = scribe_tools
+	hidden = no
+	
+	immediate = {
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:bfptr
+			}
+			save_scope_as = current_pointed_prov
+		}
+		set_variable = {
+			name = output
+			value = scope:current_pointed_prov.var:bfval
+		}
+	}
+	
+	option = {
+		name = "Okay."
+	}
+	
+}
+
+# This version of PUT is useful for debugging, but unavailiable to users.
+bf.40 = {
+	type = country_event
+	title = "DEBUG STDOUT"
+	desc = "Val: [Player.MakeScope.Var('output').GetValue]"
+	picture = scribe_tools
+	hidden = no
+	
+	immediate = {
+		random_ownable_province = {
+			limit = {
+				province_id = ROOT.var:bfptr
+			}
+			save_scope_as = current_pointed_prov
+		}
+		set_variable = {
+			name = output
+			value = scope:current_pointed_prov.var:bfval
+		}
+	}
+	
+	option = {
+		name = "Okay."
+	}
+	
+	after = {
+		remove_variable = {
+			name = output
+		}
+	}
+	
+}
+
+
+

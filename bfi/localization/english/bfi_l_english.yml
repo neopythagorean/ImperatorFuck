@@ -1,0 +1,6 @@
+﻿l_english:
+ bfi.1.title:0 "Initilaize brainfuck"
+ bfi.1.desc:0 "This event should initialize the brainfuck interpreter."
+ bfi.1.a:0 "Initialize!"
+ start_bf:0 "Start brainfuck"
+ start_bf_desc:0 "Start the brainfuck editor and interpreter."

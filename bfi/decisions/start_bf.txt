@@ -1,0 +1,15 @@
+country_decisions = {
+	start_bf = {
+		potential = {
+			tag = ROM
+		}
+		allow = {
+			tag = ROM
+		}
+		effect = {
+			trigger_event = {
+				id = bf.1
+			}
+		}
+	}
+}

@@ -311,7 +311,8 @@ bf.15 = {
 	type = country_event
 	title = "Executing..."
 	desc = "prgptr: [Player.MakeScope.Var('prgptr').GetValue] current cell: [Player.MakeScope.Var('bfptr').GetValue]"
-	hidden = no
+	hidden = yes
+	
 	
 	option = {
 		name = "CONTINUE EXECUTION."

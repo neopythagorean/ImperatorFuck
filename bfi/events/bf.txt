@@ -1,9 +1,9 @@
 namespace = bf
 
 ###############################################################
-# I M P E R A T O R  B R A I N F U C K  I N T E R P R E T E R #
+# I M P E R A T O R  B R A I N F * C K  I N T E R P R E T E R #
 ###############################################################
-#         A really shitty mod by Rezznov (/u/rezznov)         #
+#          A really bad mod by Rezznov (/u/rezznov)           #
 ###############################################################
 #
 # How it works:
@@ -26,7 +26,7 @@ namespace = bf
 # the Interpreter is currently executing.
 #
 #   bfptr
-# This is the brainfuck pointer, it points to the current cell
+# This is the brainf*ck pointer, it points to the current cell
 # in memory.
 #
 
@@ -82,7 +82,7 @@ bf.1 = {
 }
 
 # Editor event.
-#  Lets you enter the brainfuck program.
+#  Lets you enter the brainf*ck program.
 
 bf.2 = {
 	type = country_event
@@ -220,7 +220,7 @@ bf.2 = {
 		
 		random_ownable_province = {
 			limit = {
-				# By the LORD, this is so fucking ugly I am going to cry.
+				# By the LORD, this is so ugly I am going to cry.
 				province_id = scope:stack_pointed_prov.var:stack_val
 			}
 			set_variable = {
@@ -275,7 +275,7 @@ bf.2 = {
 
 bf.10 = {
 	type = country_event
-	title = "Start Brainfuck code Exection."
+	title = "Start Brainf*ck code Exection."
 	desc = "..."
 	picture = religious_rite
 	hidden = no
@@ -305,7 +305,7 @@ bf.10 = {
 
 
 # Execution event.
-#  Lets you enter the brainfuck program.
+#  Lets you enter the brainf*ck program.
 
 bf.15 = {
 	type = country_event

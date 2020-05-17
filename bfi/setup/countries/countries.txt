@@ -629,7 +629,7 @@ OPU = "setup/countries/greece/opus.txt"
 PHO = "setup/countries/greece/phocis.txt"
 DLP = "setup/countries/greece/delphi.txt"
 
-# Brainfuck Countries
+# Brainf*ck Countries
 MVR = "setup/countries/bfi/mover.txt"
 MVL = "setup/countries/bfi/movel.txt"
 INC = "setup/countries/bfi/increment.txt"

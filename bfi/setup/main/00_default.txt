@@ -7074,7 +7074,7 @@ road_network = {
 country = {
 	countries = {
 		
-		# START BRAINFUCK
+		# START BRAINF*CK
 		
 		MVR = {
 			government = aristocratic_republic
@@ -7132,7 +7132,7 @@ country = {
 			capital = 1
 		}
 		
-		# END BRAINFUCK
+		# END BRAINF*CK
 		
 		BAR = {
 			government = tribal_chiefdom
